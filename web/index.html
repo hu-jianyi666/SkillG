@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillG · 技能库管理器</title>
+<link rel="stylesheet" href="app.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230066cc'/%3E%3Cpath d='M11 9h10M11 16h10M11 23h6' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body>
+<div id="app">
+  <!-- 侧边栏 -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="26" height="26"><rect width="32" height="32" rx="8" fill="#0066cc"/><path d="M11 9h10M11 16h10M11 23h6" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">SkillG</div>
+        <div class="brand-sub">技能库管理器</div>
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 16 16" width="13" height="13"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m10.5 10.5 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <input id="search" type="search" placeholder="搜索技能名称或用途" autocomplete="off">
+    </div>
+
+    <nav class="nav" id="nav">
+      <div class="nav-group-label">浏览</div>
+      <button class="nav-item active" data-view="all">
+        <span class="nav-ico" data-ico="grid"></span>
+        <span class="nav-label">全部技能</span>
+        <span class="nav-count" id="count-all">0</span>
+      </button>
+      <button class="nav-item" data-view="recent">
+        <span class="nav-ico" data-ico="clock"></span>
+        <span class="nav-label">最近新增</span>
+        <span class="nav-count" id="count-recent">0</span>
+      </button>
+      <div class="nav-group-label">分类</div>
+      <div id="cat-nav"></div>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="watch-line">
+        <span class="watch-dot on" id="watch-dot"></span>
+        <span id="watch-text">已开启实时监听</span>
+        <button class="link-mini" id="watch-toggle">关闭</button>
+      </div>
+      <button class="foot-btn" id="btn-roots"><span data-ico="folder"></span>来源目录</button>
+      <button class="foot-btn" id="btn-agents"><span data-ico="agent"></span>智能体管理</button>
+      <button class="foot-btn" id="btn-rescan"><span data-ico="refresh"></span>立即重新扫描</button>
+    </div>
+  </aside>
+
+  <!-- 主区域 -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div>
+          <h1 id="view-title">全部技能</h1>
+          <div class="topbar-sub" id="view-sub">—</div>
+        </div>
+        <div class="topbar-right">
+          <div class="seg" id="sort-seg">
+            <button class="seg-item active" data-sort="name">名称</button>
+            <button class="seg-item" data-sort="time">更新时间</button>
+            <button class="seg-item" data-sort="source">来源</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="content" id="content">
+      <div class="loading">正在扫描本地技能…</div>
+    </section>
+  </main>
+</div>
+
+<!-- 详情页 -->
+<div class="detail" id="detail" hidden>
+  <header class="topbar detail-top">
+    <div class="topbar-inner">
+      <button class="btn btn-ghost" id="detail-back">‹ 返回技能库</button>
+      <div class="topbar-right" id="detail-actions"></div>
+    </div>
+  </header>
+  <div class="detail-body" id="detail-body"></div>
+</div>
+
+<!-- 弹窗容器 -->
+<div class="modal-mask" id="modal-mask" hidden>
+  <div class="modal" id="modal" role="dialog"></div>
+</div>
+
+<!-- 新技能提示 toast -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
