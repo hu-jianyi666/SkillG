@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/logo-wordmark.png" width="380" alt="SkillG"></p>
+
 # SkillG · 本地 Skill 分类管理器
 
 一个运行在你电脑上的技能库管理软件：自动扫描各个 skills 目录、识别用途并分门别类；
@@ -15,10 +17,11 @@ Action Blue #0066cc、#f5f5f7 羊皮纸底色、18px 卡片圆角、胶囊按钮
 
 ## 启动
 
-### 方式一：直接用打包好的 exe（推荐普通用户）
+### 方式一：打包成单文件 exe（免安装）
 
-从 Release 下载 `SkillG.exe` 单文件到任意目录，**双击即可运行**：无需安装 Python、
-无需任何依赖，首次启动会在 exe 同级生成 `data/`（你的配置）。弹原生桌面窗口；
+本公开仓库只发布源码，不提供编译好的 exe。按下方「自己打包单文件 exe」一节
+执行一条命令即可得到免安装的 `SkillG.exe`，双击运行、无需 Python 环境：
+首次启动会在 exe 同级生成 `data/`（你的配置）。弹原生桌面窗口；
 重复双击只会唤起已在运行的实例，不会开第二个。
 
 ### 方式二：源码运行（开发/调试）
@@ -93,7 +96,13 @@ SkillG/
 ├─ web/
 │  ├─ index.html           界面结构
 │  ├─ app.css              Apple 风格样式（设计 token 对应 apple/DESIGN.md）
-│  └─ app.js               交互、渲染、极简 Markdown 渲染
+│  ├─ app.js               交互、渲染、极简 Markdown 渲染
+│  ├─ logo.png             侧边栏标识
+│  └─ favicon.png          网页图标
+├─ assets/                 品牌素材（图形标、横版字标）
+├─ skillg.ico              程序图标
+├─ 打包exe.bat             一键 PyInstaller 打包
+├─ 签名exe.bat             打包后自签名（需本机已导入签名证书）
 ├─ data/                   配置与运行数据（自动生成）
 ├─ 启动SkillG.bat
 ├─ 调试模式-显示日志.bat
