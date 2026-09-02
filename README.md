@@ -15,6 +15,14 @@ Action Blue #0066cc、#f5f5f7 羊皮纸底色、18px 卡片圆角、胶囊按钮
 
 ## 启动
 
+### 方式一：直接用打包好的 exe（推荐普通用户）
+
+从 Release 下载 `SkillG.exe` 单文件到任意目录，**双击即可运行**：无需安装 Python、
+无需任何依赖，首次启动会在 exe 同级生成 `data/`（你的配置）。弹原生桌面窗口；
+重复双击只会唤起已在运行的实例，不会开第二个。
+
+### 方式二：源码运行（开发/调试）
+
 | 方式 | 文件 | 说明 |
 |---|---|---|
 | 日常使用（推荐） | `启动SkillG.bat` | 双击即可。优先弹出原生桌面窗口，无黑色控制台 |
@@ -25,6 +33,20 @@ Action Blue #0066cc、#f5f5f7 羊皮纸底色、18px 卡片圆角、胶囊按钮
 - 原生桌面窗口为可选项：执行一次 `python -m pip install pywebview`（Win11 自带 WebView2 运行时）。
   未安装时程序会自动改为在默认浏览器打开，功能完全一致。
 - 服务只监听 `127.0.0.1`，端口 18765 被占用时会自动顺延。
+
+### 自己打包单文件 exe
+
+```bash
+pip install pyinstaller pywebview pythonnet
+python -m PyInstaller --noconfirm --onefile --windowed --name SkillG ^
+  --icon skillg.ico --add-data "web;web" ^
+  --hidden-import clr --hidden-import webview.platforms.edgechromium ^
+  --collect-submodules webview --collect-all pythonnet app.py
+# 产物：dist/SkillG.exe
+```
+
+> 文件夹选择框做了双通道：优先 tkinter，遇到裁剪版 Python（缺 Tcl/Tk 脚本库）
+> 会自动回退到 Windows 自带的 Shell 对话框（PowerShell），因此打包时无需强塞 tkinter。
 
 ## 功能一览
 

@@ -21,8 +21,14 @@ try:
 except Exception:
     pass
 
-APP_DIR = os.path.dirname(os.path.abspath(__file__))
-WEB_DIR = os.path.join(APP_DIR, "web")
+if getattr(sys, "frozen", False):
+    # PyInstaller 单文件模式：界面资源在临时解包目录，用户数据放在 exe 同级（持久保留）
+    BUNDLE_DIR = getattr(sys, "_MEIPASS",
+                         os.path.dirname(os.path.abspath(sys.executable)))
+    APP_DIR = os.path.dirname(os.path.abspath(sys.executable))
+else:
+    BUNDLE_DIR = APP_DIR = os.path.dirname(os.path.abspath(__file__))
+WEB_DIR = os.path.join(BUNDLE_DIR, "web")
 DATA_DIR = os.path.join(APP_DIR, "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 # pythonw（无控制台启动）下 sys.stdout 为 None，print 会崩溃：重定向到日志文件
@@ -634,8 +640,7 @@ MIME = {".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8",
 _PICK_LOCK = threading.Lock()
 
 
-def pick_directory(initial=""):
-    """弹出系统原生“选择文件夹”对话框，返回选中目录（取消则返回空串）。"""
+def _pick_with_tk(initial=""):
     import tkinter as tk
     from tkinter import filedialog
     root = tk.Tk()
@@ -656,6 +661,37 @@ def pick_directory(initial=""):
     finally:
         root.destroy()
     return os.path.normpath(chosen) if chosen else ""
+
+
+def _pick_with_powershell(initial=""):
+    """不依赖 Tcl/Tk 的兜底通道：调用 Windows 自带的 Shell 文件夹选择框。"""
+    import json
+    import subprocess
+    title = json.dumps("选择 SkillG 要纳入的文件夹", ensure_ascii=False)
+    # 第四参数可直接给路径作为对话框根目录；标志：仅文件系统目录+可输入路径+新式对话框
+    root = initial if initial and os.path.isdir(initial) else 17  # 17 = 此电脑
+    root_arg = json.dumps(root) if isinstance(root, str) else str(root)
+    ps = (
+        "$ErrorActionPreference='Stop';"
+        "$sh=New-Object -ComObject Shell.Application;"
+        f"$d=$sh.BrowseForFolder(0,{title},0x51,{root_arg});"
+        "if($d){[Console]::OutputEncoding=[Text.Encoding]::UTF8;"
+        "[Console]::Out.Write($d.Self.Path)}"
+    )
+    r = subprocess.run(
+        ["powershell", "-NoProfile", "-STA", "-Command", ps],
+        capture_output=True, timeout=600)
+    chosen = r.stdout.decode("utf-8", "replace").strip()
+    return os.path.normpath(chosen) if chosen else ""
+
+
+def pick_directory(initial=""):
+    """弹出系统原生“选择文件夹”对话框，返回选中目录（取消则空串）。
+    优先 tkinter；遇到裁剪版 Python（缺 Tcl/Tk）自动回退 PowerShell。"""
+    try:
+        return _pick_with_tk(initial)
+    except Exception:
+        return _pick_with_powershell(initial)
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -840,6 +876,16 @@ def main():
         return
 
     port = find_free_port()
+    # 首选端口被占说明已有一个 SkillG 在运行：直接唤起已有实例，不再开第二个
+    if port != 18765:
+        try:
+            import urllib.request
+            urllib.request.urlopen("http://127.0.0.1:18765/api/state", timeout=1).read()
+            webbrowser.open("http://127.0.0.1:18765")
+            print("检测到已有实例运行，已唤起原有窗口")
+            return
+        except Exception:
+            pass
     httpd = ThreadingHTTPServer(("127.0.0.1", port), Handler)
     threading.Thread(target=httpd.serve_forever, daemon=True).start()
     url = f"http://127.0.0.1:{port}"
@@ -856,7 +902,9 @@ def main():
             webview.start()
             return
         except Exception:
-            pass
+            import traceback
+            print("原生窗口启动失败，回退到浏览器模式：")
+            traceback.print_exc()
     webbrowser.open(url)
     try:
         while True:
